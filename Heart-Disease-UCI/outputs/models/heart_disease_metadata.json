@@ -1,0 +1,88 @@
+{
+  "best_model": "Logistic Regression",
+  "features": [
+    "age",
+    "sex",
+    "cp",
+    "trestbps",
+    "chol",
+    "fbs",
+    "restecg",
+    "thalch",
+    "exang",
+    "oldpeak",
+    "slope",
+    "ca",
+    "thal"
+  ],
+  "feature_descriptions": {
+    "age": "Âge du patient",
+    "sex": "Sexe (1=Homme, 0=Femme)",
+    "cp": "Type de douleur thoracique (0-3)",
+    "trestbps": "Tension artérielle au repos (mm Hg)",
+    "chol": "Cholestérol sérique (mg/dl)",
+    "fbs": "Glycémie à jeun > 120 mg/dl (1=oui)",
+    "restecg": "ECG au repos (0-2)",
+    "thalch": "Fréquence cardiaque maximale",
+    "exang": "Angine induite par effort (1=oui)",
+    "oldpeak": "Dépression ST induite par effort",
+    "slope": "Pente du segment ST (0-2)",
+    "ca": "Nb de vaisseaux colorés par fluoroscopie",
+    "thal": "Thalassémie (0=normal, 1=fixe, 2=réversible)"
+  },
+  "n_features": 13,
+  "n_samples_train": 243,
+  "n_samples_test": 61,
+  "dataset_source": "Heart Disease UCI — Cleveland (303 patients)",
+  "classes": {
+    "0": "Sain (pas de maladie)",
+    "1": "Maladie cardiovasculaire"
+  },
+  "metrics": {
+    "logistic_regression": {
+      "accuracy": 0.8688524590163934,
+      "precision": 0.8333333333333334,
+      "recall": 0.8928571428571429,
+      "f1": 0.8620689655172413,
+      "auc": 0.961038961038961,
+      "sensitivity": 0.8928571428571429,
+      "specificity": 0.8484848484848485,
+      "ppv": 0.8333333333333334,
+      "npv": 0.9032258064516129,
+      "tp": "25",
+      "tn": "28",
+      "fp": "5",
+      "fn": "3"
+    },
+    "random_forest": {
+      "accuracy": 0.8852459016393442,
+      "precision": 0.8620689655172413,
+      "recall": 0.8928571428571429,
+      "f1": 0.8771929824561403,
+      "auc": 0.95995670995671,
+      "sensitivity": 0.8928571428571429,
+      "specificity": 0.8787878787878788,
+      "ppv": 0.8620689655172413,
+      "npv": 0.90625,
+      "tp": "25",
+      "tn": "29",
+      "fp": "4",
+      "fn": "3"
+    }
+  },
+  "best_params": {
+    "logistic_regression": {
+      "C": 0.01,
+      "max_iter": 1000,
+      "penalty": "l2",
+      "solver": "liblinear"
+    },
+    "random_forest": {
+      "max_depth": 3,
+      "max_features": "sqrt",
+      "min_samples_leaf": 2,
+      "min_samples_split": 10,
+      "n_estimators": 200
+    }
+  }
+}
