@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediScan Africa - Diagnostic Medical</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+
+        .header { background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); border-bottom: 1px solid rgba(255,255,255,0.1); padding: 20px 0; }
+        .header-inner { max-width: 1000px; margin: 0 auto; padding: 0 24px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { display: flex; align-items: center; gap: 12px; }
+        .logo-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #06b6d4); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .logo-text { font-size: 22px; font-weight: 700; color: #fff; }
+        .logo-sub { font-size: 12px; color: #94a3b8; font-weight: 400; }
+        .status-badge { display: flex; align-items: center; gap: 6px; padding: 6px 14px; background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); border-radius: 20px; font-size: 13px; color: #10b981; }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+        .main { max-width: 1000px; margin: 0 auto; padding: 32px 24px; }
+
+        .welcome { text-align: center; margin-bottom: 40px; }
+        .welcome h1 { font-size: 28px; font-weight: 700; color: #fff; margin-bottom: 8px; }
+        .welcome p { font-size: 15px; color: #94a3b8; max-width: 600px; margin: 0 auto; line-height: 1.6; }
+
+        .tabs { display: flex; gap: 8px; margin-bottom: 32px; justify-content: center; }
+        .tab { padding: 10px 24px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; cursor: pointer; font-size: 14px; font-weight: 500; color: #94a3b8; transition: all 0.2s; }
+        .tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .tab.active { background: #3b82f6; border-color: #3b82f6; color: #fff; }
+
+        .panel { display: none; }
+        .panel.active { display: block; }
+
+        .card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 28px; margin-bottom: 24px; }
+        .card h3 { font-size: 18px; font-weight: 600; color: #fff; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 4px; }
+        .form-group label { font-size: 12px; color: #94a3b8; font-weight: 500; }
+        .form-group input { padding: 10px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; transition: border-color 0.2s; }
+        .form-group input:focus { outline: none; border-color: #3b82f6; }
+
+        .btn { padding: 12px 32px; background: linear-gradient(135deg, #3b82f6, #2563eb); border: none; border-radius: 10px; color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; width: 100%; margin-top: 16px; }
+        .btn:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(59,130,246,0.4); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .result { display: none; margin-top: 24px; }
+        .result.show { display: block; }
+        .result-card { border-radius: 16px; padding: 24px; border: 1px solid; }
+        .result-card.danger { background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.3); }
+        .result-card.safe { background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.3); }
+        .result-card.warning { background: rgba(245,158,11,0.1); border-color: rgba(245,158,11,0.3); }
+
+        .result-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .result-title { font-size: 20px; font-weight: 700; }
+        .result-card.danger .result-title { color: #ef4444; }
+        .result-card.safe .result-title { color: #10b981; }
+        .result-card.warning .result-title { color: #f59e0b; }
+
+        .severity-badge { padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
+        .severity-HIGH, .severity-CRITICAL { background: rgba(239,68,68,0.2); color: #ef4444; }
+        .severity-MODERATE, .severity-MEDIUM { background: rgba(245,158,11,0.2); color: #f59e0b; }
+        .severity-LOW { background: rgba(16,185,129,0.2); color: #10b981; }
+
+        .prob-bar { margin: 16px 0; }
+        .prob-label { display: flex; justify-content: space-between; font-size: 13px; color: #94a3b8; margin-bottom: 6px; }
+        .prob-track { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .prob-fill { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+        .result-card.danger .prob-fill { background: linear-gradient(90deg, #f59e0b, #ef4444); }
+        .result-card.safe .prob-fill { background: linear-gradient(90deg, #10b981, #06b6d4); }
+        .result-card.warning .prob-fill { background: linear-gradient(90deg, #f59e0b, #ea580c); }
+
+        .recommendations { margin-top: 16px; }
+        .recommendations h4 { font-size: 14px; font-weight: 600; color: #fff; margin-bottom: 8px; }
+        .rec-item { display: flex; align-items: flex-start; gap: 8px; padding: 8px 0; font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+        .rec-dot { width: 6px; height: 6px; background: #3b82f6; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+
+        .quick-fill { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+        .quick-btn { padding: 6px 14px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); border-radius: 8px; color: #60a5fa; font-size: 12px; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif; }
+        .quick-btn:hover { background: rgba(59,130,246,0.25); }
+
+        .footer { text-align: center; padding: 32px 24px; color: #64748b; font-size: 12px; line-height: 1.8; }
+        .footer strong { color: #ef4444; }
+
+        @media (max-width: 600px) {
+            .form-grid { grid-template-columns: 1fr; }
+            .header-inner { flex-direction: column; gap: 12px; }
+            .tabs { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-inner">
+        <div class="logo">
+            <div class="logo-icon">🏥</div>
+            <div>
+                <div class="logo-text">MediScan Africa</div>
+                <div class="logo-sub">Plateforme Intelligente de Diagnostic Medical</div>
+            </div>
+        </div>
+        <div class="status-badge">
+            <span class="status-dot"></span>
+            API en ligne
+        </div>
+    </div>
+</div>
+
+<div class="main">
+    <div class="welcome">
+        <h1>Aide au Diagnostic Medical</h1>
+        <p>Entrez les donnees cliniques du patient pour recevoir un diagnostic automatise avec probabilite, niveau de severite et recommandations medicales.</p>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('cancer')">Cancer du sein</div>
+        <div class="tab" onclick="switchTab('heart')">Maladies cardiovasculaires</div>
+        <div class="tab" onclick="switchTab('stats')">Statistiques</div>
+    </div>
+
+    <!-- CANCER PANEL -->
+    <div id="panel-cancer" class="panel active">
+        <div class="card">
+            <h3>Diagnostic Cancer du Sein — Scenario B</h3>
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:16px;">Entrez les 30 mesures de biopsie mammaire (dataset Wisconsin). Utilisez les profils pre-remplis pour tester rapidement.</p>
+
+            <div class="quick-fill">
+                <button class="quick-btn" onclick="fillCancer('malin')">Profil malin (test)</button>
+                <button class="quick-btn" onclick="fillCancer('benin')">Profil benin (test)</button>
+            </div>
+
+            <div class="form-grid" id="cancer-form">
+                <div class="form-group"><label>radius_mean</label><input type="number" step="any" id="c_radius_mean"></div>
+                <div class="form-group"><label>texture_mean</label><input type="number" step="any" id="c_texture_mean"></div>
+                <div class="form-group"><label>perimeter_mean</label><input type="number" step="any" id="c_perimeter_mean"></div>
+                <div class="form-group"><label>area_mean</label><input type="number" step="any" id="c_area_mean"></div>
+                <div class="form-group"><label>smoothness_mean</label><input type="number" step="any" id="c_smoothness_mean"></div>
+                <div class="form-group"><label>compactness_mean</label><input type="number" step="any" id="c_compactness_mean"></div>
+                <div class="form-group"><label>concavity_mean</label><input type="number" step="any" id="c_concavity_mean"></div>
+                <div class="form-group"><label>concave_points_mean</label><input type="number" step="any" id="c_concave_points_mean"></div>
+                <div class="form-group"><label>symmetry_mean</label><input type="number" step="any" id="c_symmetry_mean"></div>
+                <div class="form-group"><label>fractal_dimension_mean</label><input type="number" step="any" id="c_fractal_dimension_mean"></div>
+                <div class="form-group"><label>radius_se</label><input type="number" step="any" id="c_radius_se"></div>
+                <div class="form-group"><label>texture_se</label><input type="number" step="any" id="c_texture_se"></div>
+                <div class="form-group"><label>perimeter_se</label><input type="number" step="any" id="c_perimeter_se"></div>
+                <div class="form-group"><label>area_se</label><input type="number" step="any" id="c_area_se"></div>
+                <div class="form-group"><label>smoothness_se</label><input type="number" step="any" id="c_smoothness_se"></div>
+                <div class="form-group"><label>compactness_se</label><input type="number" step="any" id="c_compactness_se"></div>
+                <div class="form-group"><label>concavity_se</label><input type="number" step="any" id="c_concavity_se"></div>
+                <div class="form-group"><label>concave_points_se</label><input type="number" step="any" id="c_concave_points_se"></div>
+                <div class="form-group"><label>symmetry_se</label><input type="number" step="any" id="c_symmetry_se"></div>
+                <div class="form-group"><label>fractal_dimension_se</label><input type="number" step="any" id="c_fractal_dimension_se"></div>
+                <div class="form-group"><label>radius_worst</label><input type="number" step="any" id="c_radius_worst"></div>
+                <div class="form-group"><label>texture_worst</label><input type="number" step="any" id="c_texture_worst"></div>
+                <div class="form-group"><label>perimeter_worst</label><input type="number" step="any" id="c_perimeter_worst"></div>
+                <div class="form-group"><label>area_worst</label><input type="number" step="any" id="c_area_worst"></div>
+                <div class="form-group"><label>smoothness_worst</label><input type="number" step="any" id="c_smoothness_worst"></div>
+                <div class="form-group"><label>compactness_worst</label><input type="number" step="any" id="c_compactness_worst"></div>
+                <div class="form-group"><label>concavity_worst</label><input type="number" step="any" id="c_concavity_worst"></div>
+                <div class="form-group"><label>concave_points_worst</label><input type="number" step="any" id="c_concave_points_worst"></div>
+                <div class="form-group"><label>symmetry_worst</label><input type="number" step="any" id="c_symmetry_worst"></div>
+                <div class="form-group"><label>fractal_dimension_worst</label><input type="number" step="any" id="c_fractal_dimension_worst"></div>
+            </div>
+            <button class="btn" onclick="submitCancer()" id="btn-cancer">Lancer le diagnostic</button>
+        </div>
+        <div class="result" id="result-cancer"></div>
+    </div>
+
+    <!-- HEART PANEL -->
+    <div id="panel-heart" class="panel">
+        <div class="card">
+            <h3>Diagnostic Cardiovasculaire — Scenario C</h3>
+            <p style="font-size:13px;color:#94a3b8;margin-bottom:16px;">Entrez les 13 parametres cliniques du patient (dataset Cleveland).</p>
+
+            <div class="quick-fill">
+                <button class="quick-btn" onclick="fillHeart('malade')">Profil a risque (test)</button>
+                <button class="quick-btn" onclick="fillHeart('sain')">Profil sain (test)</button>
+            </div>
+
+            <div class="form-grid" id="heart-form">
+                <div class="form-group"><label>Age</label><input type="number" id="h_age"></div>
+                <div class="form-group"><label>Sexe (1=Homme, 0=Femme)</label><input type="number" id="h_sex" min="0" max="1"></div>
+                <div class="form-group"><label>Type douleur thoracique (0-3)</label><input type="number" id="h_cp" min="0" max="3"></div>
+                <div class="form-group"><label>Tension arterielle (mm Hg)</label><input type="number" step="any" id="h_trestbps"></div>
+                <div class="form-group"><label>Cholesterol (mg/dl)</label><input type="number" step="any" id="h_chol"></div>
+                <div class="form-group"><label>Glycemie > 120 (1=oui, 0=non)</label><input type="number" id="h_fbs" min="0" max="1"></div>
+                <div class="form-group"><label>ECG au repos (0-2)</label><input type="number" id="h_restecg" min="0" max="2"></div>
+                <div class="form-group"><label>Frequence cardiaque max</label><input type="number" step="any" id="h_thalch"></div>
+                <div class="form-group"><label>Angine a l'effort (1=oui, 0=non)</label><input type="number" id="h_exang" min="0" max="1"></div>
+                <div class="form-group"><label>Depression ST (oldpeak)</label><input type="number" step="any" id="h_oldpeak"></div>
+                <div class="form-group"><label>Pente ST (0-2)</label><input type="number" id="h_slope" min="0" max="2"></div>
+                <div class="form-group"><label>Vaisseaux colores (0-3)</label><input type="number" step="any" id="h_ca"></div>
+                <div class="form-group"><label>Thalassemie (0-2)</label><input type="number" id="h_thal" min="0" max="2"></div>
+            </div>
+            <button class="btn" onclick="submitHeart()" id="btn-heart">Lancer le diagnostic</button>
+        </div>
+        <div class="result" id="result-heart"></div>
+    </div>
+
+    <!-- STATS PANEL -->
+    <div id="panel-stats" class="panel">
+        <div class="card">
+            <h3>Statistiques de la plateforme</h3>
+            <div id="stats-content" style="color:#94a3b8;">Chargement...</div>
+        </div>
+    </div>
+</div>
+
+<div class="footer">
+    <p><strong>Avertissement :</strong> MediScan Africa est un projet academique (P-10, DSIA M1, ISI Dakar).<br>
+    Lyliane DAMADO & Aliou NDOUR — 2026</p>
+</div>
+
+<script>
+const API = "http://13.62.55.130:8000";
+
+function switchTab(tab) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    event.target.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    if (tab === 'stats') loadStats();
+}
+
+function fillCancer(type) {
+    const malin = {radius_mean:17.99,texture_mean:10.38,perimeter_mean:122.8,area_mean:1001,smoothness_mean:0.1184,compactness_mean:0.2776,concavity_mean:0.3001,concave_points_mean:0.1471,symmetry_mean:0.2419,fractal_dimension_mean:0.07871,radius_se:1.095,texture_se:0.9053,perimeter_se:8.589,area_se:153.4,smoothness_se:0.006399,compactness_se:0.04904,concavity_se:0.05373,concave_points_se:0.01587,symmetry_se:0.03003,fractal_dimension_se:0.006193,radius_worst:25.38,texture_worst:17.33,perimeter_worst:184.6,area_worst:2019,smoothness_worst:0.1622,compactness_worst:0.6656,concavity_worst:0.7119,concave_points_worst:0.2654,symmetry_worst:0.4601,fractal_dimension_worst:0.1189};
+    const benin = {radius_mean:12.45,texture_mean:15.7,perimeter_mean:82.57,area_mean:477.1,smoothness_mean:0.1278,compactness_mean:0.17,concavity_mean:0.1578,concave_points_mean:0.08089,symmetry_mean:0.2087,fractal_dimension_mean:0.07613,radius_se:0.3345,texture_se:0.8902,perimeter_se:2.217,area_se:27.19,smoothness_se:0.00751,compactness_se:0.03345,concavity_se:0.03672,concave_points_se:0.01137,symmetry_se:0.02165,fractal_dimension_se:0.005082,radius_worst:15.47,texture_worst:23.75,perimeter_worst:103.4,area_worst:741.6,smoothness_worst:0.1791,compactness_worst:0.5249,concavity_worst:0.5355,concave_points_worst:0.1741,symmetry_worst:0.3985,fractal_dimension_worst:0.1244};
+    const data = type === 'malin' ? malin : benin;
+    Object.keys(data).forEach(k => { document.getElementById('c_' + k).value = data[k]; });
+}
+
+function fillHeart(type) {
+    const malade = {age:63,sex:1,cp:3,trestbps:145,chol:233,fbs:1,restecg:0,thalch:150,exang:0,oldpeak:2.3,slope:0,ca:0,thal:1};
+    const sain = {age:37,sex:0,cp:1,trestbps:120,chol:180,fbs:0,restecg:0,thalch:170,exang:0,oldpeak:0,slope:1,ca:0,thal:0};
+    const data = type === 'malade' ? malade : sain;
+    document.getElementById('h_age').value = data.age;
+    document.getElementById('h_sex').value = data.sex;
+    document.getElementById('h_cp').value = data.cp;
+    document.getElementById('h_trestbps').value = data.trestbps;
+    document.getElementById('h_chol').value = data.chol;
+    document.getElementById('h_fbs').value = data.fbs;
+    document.getElementById('h_restecg').value = data.restecg;
+    document.getElementById('h_thalch').value = data.thalch;
+    document.getElementById('h_exang').value = data.exang;
+    document.getElementById('h_oldpeak').value = data.oldpeak;
+    document.getElementById('h_slope').value = data.slope;
+    document.getElementById('h_ca').value = data.ca;
+    document.getElementById('h_thal').value = data.thal;
+}
+
+function showResult(containerId, data) {
+    const c = document.getElementById(containerId);
+    const isDanger = data.severity === 'HIGH' || data.severity === 'CRITICAL';
+    const isWarning = data.severity === 'MODERATE' || data.severity === 'MEDIUM';
+    const cls = isDanger ? 'danger' : (isWarning ? 'warning' : 'safe');
+    const pct = Math.round(data.probability * 100);
+
+    let recsHtml = '';
+    if (data.recommendations) {
+        recsHtml = '<div class="recommendations"><h4>Recommandations</h4>';
+        data.recommendations.forEach(r => { recsHtml += '<div class="rec-item"><div class="rec-dot"></div><span>' + r + '</span></div>'; });
+        recsHtml += '</div>';
+    }
+
+    c.innerHTML = '<div class="result-card ' + cls + '">' +
+        '<div class="result-header">' +
+        '<div class="result-title">' + data.prediction + '</div>' +
+        '<span class="severity-badge severity-' + data.severity + '">' + data.severity + '</span>' +
+        '</div>' +
+        '<div style="font-size:13px;color:#94a3b8;margin-bottom:8px;">' + data.pathology + '</div>' +
+        '<div class="prob-bar">' +
+        '<div class="prob-label"><span>Probabilite</span><span>' + pct + '%</span></div>' +
+        '<div class="prob-track"><div class="prob-fill" style="width:' + pct + '%"></div></div>' +
+        '</div>' +
+        recsHtml +
+        '<div style="font-size:11px;color:#64748b;margin-top:12px;">Timestamp: ' + data.timestamp + '</div>' +
+        '</div>';
+    c.classList.add('show');
+}
+
+async function submitCancer() {
+    const btn = document.getElementById('btn-cancer');
+    btn.disabled = true; btn.textContent = 'Analyse en cours...';
+
+    const fields = ['radius_mean','texture_mean','perimeter_mean','area_mean','smoothness_mean','compactness_mean','concavity_mean','concave_points_mean','symmetry_mean','fractal_dimension_mean','radius_se','texture_se','perimeter_se','area_se','smoothness_se','compactness_se','concavity_se','concave_points_se','symmetry_se','fractal_dimension_se','radius_worst','texture_worst','perimeter_worst','area_worst','smoothness_worst','compactness_worst','concavity_worst','concave_points_worst','symmetry_worst','fractal_dimension_worst'];
+    const body = {};
+    fields.forEach(f => { body[f] = parseFloat(document.getElementById('c_' + f).value) || 0; });
+
+    try {
+        const res = await fetch(API + '/diagnostic/cancer', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) { showResult('result-cancer', data); }
+        else { alert('Erreur: ' + (data.detail || 'Erreur inconnue')); }
+    } catch(e) { alert('Erreur de connexion a l\'API: ' + e.message); }
+
+    btn.disabled = false; btn.textContent = 'Lancer le diagnostic';
+}
+
+async function submitHeart() {
+    const btn = document.getElementById('btn-heart');
+    btn.disabled = true; btn.textContent = 'Analyse en cours...';
+
+    const body = {
+        age: parseInt(document.getElementById('h_age').value) || 0,
+        sex: parseInt(document.getElementById('h_sex').value) || 0,
+        cp: parseInt(document.getElementById('h_cp').value) || 0,
+        trestbps: parseFloat(document.getElementById('h_trestbps').value) || 0,
+        chol: parseFloat(document.getElementById('h_chol').value) || 0,
+        fbs: parseInt(document.getElementById('h_fbs').value) || 0,
+        restecg: parseInt(document.getElementById('h_restecg').value) || 0,
+        thalch: parseFloat(document.getElementById('h_thalch').value) || 0,
+        exang: parseInt(document.getElementById('h_exang').value) || 0,
+        oldpeak: parseFloat(document.getElementById('h_oldpeak').value) || 0,
+        slope: parseInt(document.getElementById('h_slope').value) || 0,
+        ca: parseFloat(document.getElementById('h_ca').value) || 0,
+        thal: parseInt(document.getElementById('h_thal').value) || 0,
+    };
+
+    try {
+        const res = await fetch(API + '/diagnostic/heart', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify(body) });
+        const data = await res.json();
+        if (res.ok) { showResult('result-heart', data); }
+        else { alert('Erreur: ' + (data.detail || 'Erreur inconnue')); }
+    } catch(e) { alert('Erreur de connexion a l\'API: ' + e.message); }
+
+    btn.disabled = false; btn.textContent = 'Lancer le diagnostic';
+}
+
+async function loadStats() {
+    try {
+        const [statsRes, healthRes] = await Promise.all([
+            fetch(API + '/stats'), fetch(API + '/health')
+        ]);
+        const stats = await statsRes.json();
+        const health = await healthRes.json();
+
+        document.getElementById('stats-content').innerHTML =
+            '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-top:16px;">' +
+            '<div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.2);border-radius:12px;padding:20px;text-align:center;">' +
+            '<div style="font-size:32px;font-weight:700;color:#3b82f6;">' + stats.total_diagnostics + '</div>' +
+            '<div style="font-size:12px;color:#94a3b8;margin-top:4px;">Total diagnostics</div></div>' +
+            '<div style="background:rgba(236,72,153,0.1);border:1px solid rgba(236,72,153,0.2);border-radius:12px;padding:20px;text-align:center;">' +
+            '<div style="font-size:32px;font-weight:700;color:#ec4899;">' + stats.cancer + '</div>' +
+            '<div style="font-size:12px;color:#94a3b8;margin-top:4px;">Cancer du sein</div></div>' +
+            '<div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.2);border-radius:12px;padding:20px;text-align:center;">' +
+            '<div style="font-size:32px;font-weight:700;color:#10b981;">' + stats.cardiovasculaire + '</div>' +
+            '<div style="font-size:12px;color:#94a3b8;margin-top:4px;">Cardiovasculaire</div></div>' +
+            '</div>' +
+            '<div style="margin-top:20px;padding:16px;background:rgba(255,255,255,0.05);border-radius:12px;">' +
+            '<div style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">Etat des modeles</div>' +
+            '<div style="font-size:13px;color:#94a3b8;">Cancer: ' + health.models.cancer + ' | Heart: ' + health.models.heart + '</div>' +
+            '<div style="font-size:13px;color:#94a3b8;">Statut API: ' + health.status + '</div>' +
+            '</div>';
+    } catch(e) {
+        document.getElementById('stats-content').innerHTML = '<p style="color:#ef4444;">Erreur de connexion a l\'API</p>';
+    }
+}
+</script>
+</body>
+</html>
